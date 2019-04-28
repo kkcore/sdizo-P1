@@ -28,6 +28,12 @@ Table* Table::GetInstance()
 	return instance;
 }
 
+Table * Table::RefreshInstance()
+{
+	instance = new Table();
+	return instance;
+}
+
 void Table::Show() {
 	cout << "[";
 	for (int i = 0; i < size; i++) {

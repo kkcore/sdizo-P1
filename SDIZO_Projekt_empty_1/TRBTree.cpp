@@ -2,344 +2,320 @@
 
 
 
-TRBTree::TRBTree()
+TRBTree::TRBTree(std::string data)
 {
-	cr = cl = cp = "  ";
+
+	guard.color = 'B';         
+	guard.parent = &guard;
+	guard.left = &guard;
+	guard.right = &guard;
+	root = &guard;         
+
+	std::ifstream rtbtreetnodet(data);
+	int i = 0;
+	for (std::string line; getline(rtbtreetnodet, line);) {
+		if (i >= 1)
+			Add(stoi(line));
+		i++;
+	}
+}
+
+
+
+void TRBTree::PrintRBT(string sp, string sn, RBTNode * node)
+{
+	string t;
+	string cr = cl = cp = "  ";
 	cr[0] = 218; cr[1] = 196;
 	cl[0] = 192; cl[1] = 196;
 	cp[0] = 179;
-	S.color = 'B';          // Inicjujemy stra¿nika
-	S.up = &S;
-	S.left = &S;
-	S.right = &S;
-	root = &S;           // Korzeñ wskazuje stra¿nika
-}
-
-// Destruktor drzewa
-//------------------
-TRBTree::~TRBTree()
-{
-	DFSRelease(root);       // Rekurencyjnie usuwamy wêz³y
-}
-
-// Usuwa rekurencyjnie drzewo czerwono-czarne
-//-------------------------------------------
-void TRBTree::DFSRelease(RBTNode * p)
-{
-	if (p != &S)
-	{
-		DFSRelease(p->left);   // usuwamy lewe poddrzewo
-		DFSRelease(p->right);  // usuwamy prawe poddrzewo
-		delete p;              // usuwamy sam wêze³
-	}
-}
-
-// Wypisuje zawartoœæ drzewa
-//--------------------------
-void TRBTree::printRBT(string sp, string sn, RBTNode * p)
-{
-	string t;
-
-	if (p != &S)
+	if (node != &guard)
 	{
 		t = sp;
 		if (sn == cr) t[t.length() - 2] = ' ';
-		printRBT(t + cp, cr, p->right);
+		PrintRBT(t + cp, cr, node->right);
 
 		t = t.substr(0, sp.length() - 2);
-		cout << t << sn << p->color << ":" << p->key << endl;
+		cout << t << sn << node->key << node->color << endl;
 
 		t = sp;
 		if (sn == cl) t[t.length() - 2] = ' ';
-		printRBT(t + cp, cl, p->left);
+		PrintRBT(t + cp, cl, node->left);
 	}
 }
 
-// Wypisuje zawartoœæ drzewa
-//--------------------------
-void TRBTree::print()
+void TRBTree::Show()
 {
-	printRBT("", "", root);
+	PrintRBT("", "", root);
 }
 
-// Wyszukuje wêze³ o kluczu k
-// Jeœli wêze³ nie zostanie znaleziony, to zwraca
-// wskazanie puste NULL
-//-----------------------------------------------
-RBTNode * TRBTree::findRBT(int k)
+RBTNode * TRBTree::Find(int k)
 {
 	RBTNode * p;
 
 	p = root;
-	while ((p != &S) && (p->key != k))
+	while ((p != &guard) && (p->key != k))
 		if (k < p->key) p = p->left;
 		else           p = p->right;
-	if (p == &S) return NULL;
+	if (p == &guard) return NULL;
 	return p;
 }
 
-// Wyszukuje najmniejszy wêze³ w poddrzewie
-// o korzeniu p
-//-----------------------------------------
-RBTNode * TRBTree::minRBT(RBTNode * p)
-{
-	if (p != &S)
-		while (p->left != &S) p = p->left;
-	return p;
-}
 
-// Zwraca nastêpnik p
-//-------------------
-RBTNode * TRBTree::succRBT(RBTNode * p)
+RBTNode * TRBTree::FindSuccessor(RBTNode * node)
 {
 	RBTNode * r;
 
-	if (p != &S)
+	if (node != &guard)
 	{
-		if (p->right != &S) return minRBT(p->right);
+		if (node->right != &guard) {
+			if (node != &guard)
+				while (node->left != &guard) node = node->left;
+			return node;
+		}
 		else
 		{
-			r = p->up;
-			while ((r != &S) && (p == r->right))
+			r = node->parent;
+			while ((r != &guard) && (node == r->right))
 			{
-				p = r;
-				r = r->up;
+				node = r;
+				r = r->parent;
 			}
 			return r;
 		}
 	}
-	return &S;
+	return &guard;
 }
 
-// Wykonuje rotacjê w lewo wzglêdem A
-//-----------------------------------
-void TRBTree::rot_L(RBTNode * A)
+void TRBTree::RotateL(RBTNode * node)
 {
-	RBTNode * B, *p;
+	RBTNode * pivot, *parent;
 
-	B = A->right;
-	if (B != &S)
+	pivot = node->right;
+	if (pivot != &guard)
 	{
-		p = A->up;
-		A->right = B->left;
-		if (A->right != &S) A->right->up = A;
+		parent = node->parent;
+		node->right = pivot->left;
+		if (node->right != &guard) node->right->parent = node;
 
-		B->left = A;
-		B->up = p;
-		A->up = B;
+		pivot->left = node;
+		pivot->parent = parent;
+		node->parent = pivot;
 
-		if (p != &S)
+		if (parent != &guard)
 		{
-			if (p->left == A) p->left = B; else p->right = B;
+			if (parent->left == node) parent->left = pivot; else parent->right = pivot;
 		}
-		else root = B;
+		else root = pivot;
 	}
 }
 
-// Wykonuje rotacjê w prawo wzglêdem A
-//------------------------------------
-void TRBTree::rot_R(RBTNode * A)
+void TRBTree::RotateR(RBTNode * node)
 {
-	RBTNode * B, *p;
+	RBTNode * pivot, *parent;
 
-	B = A->left;
-	if (B != &S)
+	pivot = node->left;
+	if (pivot != &guard)
 	{
-		p = A->up;
-		A->left = B->right;
-		if (A->left != &S) A->left->up = A;
+		parent = node->parent;
+		node->left = pivot->right;
+		if (node->left != &guard) node->left->parent = node;
 
-		B->right = A;
-		B->up = p;
-		A->up = B;
+		pivot->right = node;
+		pivot->parent = parent;
+		node->parent = pivot;
 
-		if (p != &S)
+		if (parent != &guard)
 		{
-			if (p->left == A) p->left = B; else p->right = B;
+			if (parent->left == node) parent->left = pivot; else parent->right = pivot;
 		}
-		else root = B;
+		else root = pivot;
 	}
 }
 
-// Wstawia do drzewa wêze³ o kluczu k
-//-----------------------------------
-void TRBTree::insertRBT(int k)
+void TRBTree::Add(int k)
 {
-	RBTNode * X, *Y;
+	RBTNode * child, *uncle;
 
-	X = new RBTNode;        // Tworzymy nowy wêze³
-	X->left = &S;          // Inicjujemy pola
-	X->right = &S;
-	X->up = root;
-	X->key = k;
-	if (X->up == &S) root = X; // X staje siê korzeniem
+	child = new RBTNode;        
+	child->left = &guard;       
+	child->right = &guard;
+	child->parent = root;
+	child->key = k;
+	if (child->parent == &guard) root = child; 
 	else
-		while (true)             // Szukamy liœcia do zast¹pienia przez X
+		while (true)             
 		{
-			if (k < X->up->key)
+			if (k < child->parent->key)
 			{
-				if (X->up->left == &S)
+				if (child->parent->left == &guard)
 				{
-					X->up->left = X;  // X zastêpuje lewy liœæ
+					child->parent->left = child;  
 					break;
 				}
-				X->up = X->up->left;
+				child->parent = child->parent->left;
 			}
 			else
 			{
-				if (X->up->right == &S)
+				if (child->parent->right == &guard)
 				{
-					X->up->right = X; // X zastêpuje prawy liœæ
+					child->parent->right = child; 
 					break;
 				}
-				X->up = X->up->right;
+				child->parent = child->parent->right;
 			}
 		}
-	X->color = 'R';         // Wêze³ kolorujemy na czerwono
-	while ((X != root) && (X->up->color == 'R'))
+	child->color = 'R';        
+	while ((child != root) && (child->parent->color == 'R'))
 	{
-		if (X->up == X->up->up->left)
+		if (child->parent == child->parent->parent->left)
 		{
-			Y = X->up->up->right; // Y -> wujek X
+			uncle = child->parent->parent->right; 
 
-			if (Y->color == 'R')  // Przypadek 1
+			if (uncle->color == 'R')
 			{
-				X->up->color = 'B';
-				Y->color = 'B';
-				X->up->up->color = 'R';
-				X = X->up->up;
+				child->parent->color = 'B';
+				uncle->color = 'B';
+				child->parent->parent->color = 'R';
+				child = child->parent->parent;
 				continue;
 			}
 
-			if (X == X->up->right) // Przypadek 2
+			if (child == child->parent->right) 
 			{
-				X = X->up;
-				rot_L(X);
+				child = child->parent;
+				RotateL(child);
 			}
 
-			X->up->color = 'B'; // Przypadek 3
-			X->up->up->color = 'R';
-			rot_R(X->up->up);
+			child->parent->color = 'B'; 
+			child->parent->parent->color = 'R';
+			RotateR(child->parent->parent);
 			break;
 		}
 		else
-		{                  // Przypadki lustrzane
-			Y = X->up->up->left;
+		{               
+			uncle = child->parent->parent->left;
 
-			if (Y->color == 'R') // Przypadek 1
+			if (uncle->color == 'R') 
 			{
-				X->up->color = 'B';
-				Y->color = 'B';
-				X->up->up->color = 'R';
-				X = X->up->up;
+				child->parent->color = 'B';
+				uncle->color = 'B';
+				child->parent->parent->color = 'R';
+				child = child->parent->parent;
 				continue;
 			}
 
-			if (X == X->up->left) // Przypadek 2
+			if (child == child->parent->left) 
 			{
-				X = X->up;
-				rot_R(X);
+				child = child->parent;
+				RotateR(child);
 			}
 
-			X->up->color = 'B'; // Przypadek 3
-			X->up->up->color = 'R';
-			rot_L(X->up->up);
+			child->parent->color = 'B'; 
+			child->parent->parent->color = 'R';
+			RotateL(child->parent->parent);
 			break;
 		}
 	}
 	root->color = 'B';
 }
 
-// Usuwa z drzewa wêze³ X
-//-----------------------
-void TRBTree::removeRBT(RBTNode * X)
+void TRBTree::Delete(RBTNode * node)
 {
-	RBTNode * W, *Y, *Z;
+	RBTNode * a, *b, *c;
 
-	if ((X->left == &S) || (X->right == &S)) Y = X;
-	else                                    Y = succRBT(X);
+	if ((node->left == &guard) || (node->right == &guard))
+		b = node;
+	else                                  
+		b = FindSuccessor(node);
 
-	if (Y->left != &S) Z = Y->left;
-	else              Z = Y->right;
+	if (b->left != &guard)
+		c = b->left;
+	else            
+		c = b->right;
 
-	Z->up = Y->up;
+	c->parent = b->parent;
 
-	if (Y->up == &S) root = Z;
-	else if (Y == Y->up->left) Y->up->left = Z;
-	else                      Y->up->right = Z;
+	if (b->parent == &guard) 
+		root = c;
+	else if (b == b->parent->left)
+		b->parent->left = c;
+	else                     
+		b->parent->right = c;
 
-	if (Y != X) X->key = Y->key;
+	if (b != node)
+		node->key = b->key;
 
-	if (Y->color == 'B')   // Naprawa struktury drzewa czerwono-czarnego
-		while ((Z != root) && (Z->color == 'B'))
-			if (Z == Z->up->left)
+	if (b->color == 'B')  
+		while ((c != root) && (c->color == 'B'))
+			if (c == c->parent->left)
 			{
-				W = Z->up->right;
+				a = c->parent->right;
 
-				if (W->color == 'R')
-				{              // Przypadek 1
-					W->color = 'B';
-					Z->up->color = 'R';
-					rot_L(Z->up);
-					W = Z->up->right;
+				if (a->color == 'R')
+				{              
+					a->color = 'B';
+					c->parent->color = 'R';
+					RotateL(c->parent);
+					a = c->parent->right;
 				}
 
-				if ((W->left->color == 'B') && (W->right->color == 'B'))
-				{              // Przypadek 2
-					W->color = 'R';
-					Z = Z->up;
+				if ((a->left->color == 'B') && (a->right->color == 'B'))
+				{            
+					a->color = 'R';
+					c = c->parent;
 					continue;
 				}
 
-				if (W->right->color == 'B')
-				{              // Przypadek 3
-					W->left->color = 'B';
-					W->color = 'R';
-					rot_R(W);
-					W = Z->up->right;
+				if (a->right->color == 'B')
+				{            
+					a->left->color = 'B';
+					a->color = 'R';
+					RotateR(a);
+					a = c->parent->right;
 				}
 
-				W->color = Z->up->color; // Przypadek 4
-				Z->up->color = 'B';
-				W->right->color = 'B';
-				rot_L(Z->up);
-				Z = root;         // To spowoduje zakoñczenie pêtli
+				a->color = c->parent->color;
+				c->parent->color = 'B';
+				a->right->color = 'B';
+				RotateL(c->parent);
+				c = root;        
 			}
 			else
-			{                // Przypadki lustrzane
-				W = Z->up->left;
+			{                
+				a = c->parent->left;
 
-				if (W->color == 'R')
-				{              // Przypadek 1
-					W->color = 'B';
-					Z->up->color = 'R';
-					rot_R(Z->up);
-					W = Z->up->left;
+				if (a->color == 'R')
+				{             
+					a->color = 'B';
+					c->parent->color = 'R';
+					RotateR(c->parent);
+					a = c->parent->left;
 				}
 
-				if ((W->left->color == 'B') && (W->right->color == 'B'))
-				{              // Przypadek 2
-					W->color = 'R';
-					Z = Z->up;
+				if ((a->left->color == 'B') && (a->right->color == 'B'))
+				{           
+					a->color = 'R';
+					c = c->parent;
 					continue;
 				}
 
-				if (W->left->color == 'B')
-				{              // Przypadek 3
-					W->right->color = 'B';
-					W->color = 'R';
-					rot_L(W);
-					W = Z->up->left;
+				if (a->left->color == 'B')
+				{             
+					a->right->color = 'B';
+					a->color = 'R';
+					RotateL(a);
+					a = c->parent->left;
 				}
 
-				W->color = Z->up->color;  // Przypadek 4
-				Z->up->color = 'B';
-				W->left->color = 'B';
-				rot_R(Z->up);
-				Z = root;         // To spowoduje zakoñczenie pêtli
+				a->color = c->parent->color;  
+				c->parent->color = 'B';
+				a->left->color = 'B';
+				RotateR(c->parent);
+				c = root;        
 			}
 
-	Z->color = 'B';
+	c->color = 'B';
 
-	delete Y;
+	delete b;
 }

@@ -9,7 +9,7 @@ struct ListElement {
 class List
 {
 private:
-	List(std::string data = "C:\\Users\\oszus\\source\\repos\\SDIZO_Projekt1\\list.txt");
+	List(std::string data = "C:\\Users\\oszus\\source\\repos\\SDIZO_Projekt1\\data.txt");
 	static List* instance;
 	//WskaŸnik na g³owê(pierwszy element) listy
 	static ListElement *head;
@@ -17,9 +17,11 @@ private:
 	static ListElement* FindOneBefore(int value);
 public:
 	static List* GetInstance();
+	static List* RefreshInstance();
 	static void Push(int value);
 	static void Show();
 	static ListElement* Find(int value);
+	static ListElement* GetElement(int index);
 	static void Add(int valueToFind, int valueToPut);
 	static void Delete(int value);
 

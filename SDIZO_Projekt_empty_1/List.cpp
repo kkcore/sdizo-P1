@@ -23,6 +23,12 @@ List * List::GetInstance()
 	return instance;
 }
 
+List * List::RefreshInstance()
+{
+	instance = new List();
+	return instance;
+}
+
 void List::Push(int value)
 {
 	ListElement *element;
@@ -37,6 +43,19 @@ void List::Show()
 	ListElement* headpointer = head;
 	for (int i = 0; headpointer; headpointer = headpointer->next)
 		std::cout << headpointer->value << std::endl;
+}
+
+ListElement* List::GetElement(int index) {
+	ListElement* headpointer = head;
+	try {
+		for (int i = 0; i < index; i++) {
+			headpointer = headpointer->next;
+		}
+	}
+	catch (...) {
+		return nullptr;
+	}
+	return headpointer;
 }
 
 ListElement* List::Find(int value)

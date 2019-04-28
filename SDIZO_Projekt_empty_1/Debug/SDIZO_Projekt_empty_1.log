@@ -1,2 +1,3 @@
 ﻿  Main.cpp
+c:\users\oszus\source\repos\sdizo_projekt_empty_1\sdizo_projekt_empty_1\main.cpp(27): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   SDIZO_Projekt_empty_1.vcxproj -> C:\Users\oszus\source\repos\SDIZO_Projekt_empty_1\Debug\SDIZO_Projekt_empty_1.exe

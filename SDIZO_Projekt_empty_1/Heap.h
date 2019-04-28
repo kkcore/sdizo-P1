@@ -7,7 +7,7 @@
 class Heap
 {
 private:
-	Heap(std::string data = "C:\\Users\\oszus\\source\\repos\\SDIZO_Projekt1\\heap.txt");
+	Heap(std::string data = "C:\\Users\\oszus\\source\\repos\\SDIZO_Projekt1\\data.txt");
 	static Heap* instance;
 	static int tableSize;
 	static int* table;
@@ -33,6 +33,7 @@ private:
 	static int GetIndex(int value);
 public:
 	static Heap* GetInstance();
+	static Heap* RefreshInstance();
 	static void Show(std::string sp = "", std::string sn = "", int v = 0);
 	static void Delete(int value);
 	static void Add(int value);

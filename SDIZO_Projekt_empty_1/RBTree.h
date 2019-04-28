@@ -14,7 +14,7 @@ struct RBTNode
 class RBTree
 {
 private:
-	RBTree(std::string data = "C:\\Users\\oszus\\source\\repos\\SDIZO_Projekt1\\rbtree.txt");
+	RBTree(std::string data = "C:\\Users\\oszus\\source\\repos\\SDIZO_Projekt1\\data.txt");
 	static RBTree* instance;
 	static RBTNode* root;
 	static RBTNode* guard;

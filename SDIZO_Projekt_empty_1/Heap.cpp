@@ -15,7 +15,7 @@ Heap::Heap(string data)
 		if (i == 0) {
 			int valuesCount = stoi(line);
 			heapSize = valuesCount;
-			cout << FindTableSize(valuesCount) << endl;
+
 			tableSize = FindTableSize(valuesCount);
 			table = new int[tableSize];
 		}
@@ -41,6 +41,12 @@ Heap* Heap::GetInstance()
 {
 	if (instance == NULL)
 		instance = new Heap();
+	return instance;
+}
+
+Heap * Heap::RefreshInstance()
+{
+	instance = new Heap();
 	return instance;
 }
 
@@ -190,7 +196,7 @@ void Heap::Delete(int value)
 	int i = 0;
 	if (Find(value)) {
 		int index = GetIndex(value);
-		int * tmp = new int[heapSize - 1];
+		int * tmp = new int[tableSize];
 		while (i < index) {
 			tmp[i] = table[i];
 			i++;

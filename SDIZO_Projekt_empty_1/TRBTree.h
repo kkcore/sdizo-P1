@@ -3,13 +3,13 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 
 using namespace std;
 
-const int MAXN = 30;           // Liczba wêz³ów
 struct RBTNode
 {
-	RBTNode * up;
+	RBTNode * parent;
 	RBTNode * left;
 	RBTNode * right;
 	int key;
@@ -19,23 +19,20 @@ struct RBTNode
 class TRBTree
 {
 private:
-	RBTNode S;             // Wêze³ stra¿nika
-	RBTNode * root;        // Korzeñ drzewa czerwono-czarnego
-	string cr, cl, cp;       // £añcuchy do znaków ramek
+	RBTNode guard;          
+	RBTNode * root;        
+	string cr, cl, cp;       
 
-	void printRBT(string sp, string sn, RBTNode * p); // Wypisuje drzewo
+	void PrintRBT(string sp, string sn, RBTNode * p); 
 
 public:
-	TRBTree();             // Konstruktor klasy
-	~TRBTree();            // Destruktor klasy
-	void DFSRelease(RBTNode * p); // Usuwa rekurencyjnie drzewo
-	void print();          // Wypisuje drzewo
-	RBTNode * findRBT(int k); // Wyszukuje wêze³ o kluczu k
-	RBTNode * minRBT(RBTNode * p); // Wyszukuje najmniejszy wêze³ w p
-	RBTNode * succRBT(RBTNode * p);// Wyszukuje nastêpnik p
-	void rot_L(RBTNode * A); // Rotacja w lewo wzglêdem A
-	void rot_R(RBTNode * A); // Rotacja w prawo wzglêdem A
-	void insertRBT(int k);   // Wstawia wêze³ o kluczu k
-	void removeRBT(RBTNode * X); // Usuwa wêze³ X
+	TRBTree(std::string data = "C:\\Users\\oszus\\source\\repos\\SDIZO_Projekt1\\trbtree.txt");
+	void Show();          
+	RBTNode * Find(int value); 
+	RBTNode * FindSuccessor(RBTNode * node);
+	void RotateL(RBTNode * node); 
+	void RotateR(RBTNode * node); 
+	void Add(int k);   
+	void Delete(RBTNode * node); 
 };
 
